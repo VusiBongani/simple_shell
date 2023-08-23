@@ -1,10 +1,9 @@
 #include "shell.h"
 
 /**
- * get_environ - returns the string array copy of our environ
- * @info: Structure containing potential arguments. Used to maintain
- *          constant function prototype.
- * Return: Always 0
+ * get_environ - string array copy of the environment.
+ * @info: Structure containing potential arguments.
+ * Return: Always 0.
  */
 char **get_environ(info_t *info)
 {
@@ -18,25 +17,24 @@ char **get_environ(info_t *info)
 }
 
 /**
- * _unsetenv - Remove an environment variable
- * @info: Structure containing potential arguments. Used to maintain
- *        constant function prototype.
- *  Return: 1 on delete, 0 otherwise
- * @var: the string env var property
+ * _unsetenv - Removes an environment variable.
+ * @info: Structure containing potential arguments.
+ *  Return: 1 on delete, 0 otherwise.
+ * @var: the string variable.
  */
 int _unsetenv(info_t *info, char *var)
 {
 	list_t *node = info->env;
 	size_t i = 0;
-	char *p;
+	char *k;
 
 	if (!node || !var)
 		return (0);
 
 	while (node)
 	{
-		p = starts_with(node->str, var);
-		if (p && *p == '=')
+		k = starts_with(node->str, var);
+		if (k && *k == '=')
 		{
 			info->env_changed = delete_node_at_index(&(info->env), i);
 			i = 0;
@@ -50,29 +48,27 @@ int _unsetenv(info_t *info, char *var)
 }
 
 /**
- * _setenv - Initialize a new environment variable,
- *             or modify an existing one
- * @info: Structure containing potential arguments. Used to maintain
- *        constant function prototype.
- * @var: the string env var property
- * @value: the string env var value
- *  Return: Always 0
+ * _setenv - Initialize a new environment variable.
+ * @info: Structure containing potential arguments.
+ * @var: the string variable.
+ * @val: the string variable value.
+ *  Return: Always 0.
  */
-int _setenv(info_t *info, char *var, char *value)
+int _setenv(info_t *info, char *var, char *val)
 {
 	char *buf = NULL;
 	list_t *node;
 	char *p;
 
-	if (!var || !value)
+	if (!var || !val)
 		return (0);
 
-	buf = malloc(_strlen(var) + _strlen(value) + 2);
+	buf = malloc(_strlen(var) + _strlen(val) + 2);
 	if (!buf)
 		return (1);
 	_strcpy(buf, var);
 	_strcat(buf, "=");
-	_strcat(buf, value);
+	_strcat(buf, val);
 	node = info->env;
 	while (node)
 	{

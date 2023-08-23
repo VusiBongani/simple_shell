@@ -41,13 +41,13 @@ int _isalpha(int b)
 /**
  *_atoi - converts a string to an integer
  *@v: represent the string
- *Return: 0 if a certain condition is not
+ *Return: 0 if a certain condition is not met
  */
 
 int _atoi(char *v)
 {
 	int i, sign = 1, flag = 0, output;
-	unsigned int result = 0;
+	unsigned int solution = 0;
 
 	for (i = 0;  v[i] != '\0' && flag != 2; i++)
 	{
@@ -57,17 +57,17 @@ int _atoi(char *v)
 		if (v[i] >= '0' && v[i] <= '9')
 		{
 			flag = 1;
-			result *= 10;
-			result += (v[i] - '0');
+			solution *= 10;
+			solution += (v[i] - '0');
 		}
 		else if (flag == 1)
 			flag = 2;
 	}
 
 	if (sign == -1)
-		output = -result;
+		output = -solution;
 	else
-		output = result;
+		output = solution;
 
 	return (output);
 }
