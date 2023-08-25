@@ -1,90 +1,87 @@
 #include "shell.h"
 
 /**
- * get_history_file - gets the history file
+ * get_history_file - Obtains the history file
  * @info: parameter struct
- *
- * Return: allocated string containg history file
+ * Return: returns the allocated string
  */
 
 char *get_history_file(info_t *info)
 {
-	char *buf, *dir;
+	char *buf, *direc;
 
-	dir = _getenv(info, "HOME=");
-	if (!dir)
+	direc = _getenv(info, "HOME=");
+	if (!direc)
 		return (NULL);
-	buf = malloc(sizeof(char) * (_strlen(dir) + _strlen(HIST_FILE) + 2));
+	buf = malloc(sizeof(char) * (_strlen(direc) + _strlen(HIST_FILE) + 2));
 	if (!buf)
 		return (NULL);
 	buf[0] = 0;
-	_strcpy(buf, dir);
+	_strcpy(buf, direc);
 	_strcat(buf, "/");
 	_strcat(buf, HIST_FILE);
 	return (buf);
 }
 
 /**
- * write_history - creates a file, or appends to an existing file
- * @info: the parameter struct
- *
- * Return: 1 on success, else -1
+ * write_history - creates or appends to an existing file
+ * @info: parameter struct
+ * Return: return a value
  */
 int write_history(info_t *info)
 {
-	ssize_t fd;
+	ssize_t fdr;
 	char *filename = get_history_file(info);
 	list_t *node = NULL;
 
 	if (!filename)
 		return (-1);
 
-	fd = open(filename, O_CREAT | O_TRUNC | O_RDWR, 0644);
+	fdr = open(filename, O_CREAT | O_TRUNC | O_RDWR, 0644);
 	free(filename);
-	if (fd == -1)
+	if (fdr == -1)
 		return (-1);
 	for (node = info->history; node; node = node->next)
 	{
-		_putsfd(node->str, fd);
-		_putfd('\n', fd);
+		_putsfd(node->str, fdr);
+		_putfd('\n', fdr);
 	}
-	_putfd(BUF_FLUSH, fd);
-	close(fd);
+	_putfd(BUF_FLUSH, fdr);
+	close(fdr);
 	return (1);
 }
 
 /**
  * read_history - reads history from file
- * @info: the parameter struct
- *
- * Return: histcount on success, 0 otherwise
+ * @info: parameter struct
+ * Return: returns value
  */
 int read_history(info_t *info)
 {
 	int i, last = 0, linecount = 0;
-	ssize_t fd, rdlen, fsize = 0;
+	ssize_t fdr, rdlen, fsize = 0;
 	struct stat st;
 	char *buf = NULL, *filename = get_history_file(info);
 
 	if (!filename)
 		return (0);
 
-	fd = open(filename, O_RDONLY);
+	fdr = open(filename, O_RDONLY);
 	free(filename);
-	if (fd == -1)
+	if (fdr == -1)
 		return (0);
-	if (!fstat(fd, &st))
+	if (!fstat(fdr, &st))
 		fsize = st.st_size;
 	if (fsize < 2)
 		return (0);
 	buf = malloc(sizeof(char) * (fsize + 1));
 	if (!buf)
 		return (0);
-	rdlen = read(fd, buf, fsize);
+	rdlen = read(fdr, buf, fsize);
 	buf[fsize] = 0;
 	if (rdlen <= 0)
 		return (free(buf), 0);
-	close(fd);
+	close(fdr);
 	for (i = 0; i < fsize; i++)
 		if (buf[i] == '\n')
 		{
@@ -103,20 +100,19 @@ int read_history(info_t *info)
 }
 
 /**
- * build_history_list - adds entry to a history linked list
- * @info: Structure containing potential arguments. Used to maintain
+ * build_history_list - adds entry to linked list
+ * @info: Structure containing potential arguments.
  * @buf: buffer
- * @linecount: the history linecount, histcount
- *
+ * @countline: the history linecount.
  * Return: Always 0
  */
-int build_history_list(info_t *info, char *buf, int linecount)
+int build_history_list(info_t *info, char *buf, int countline)
 {
 	list_t *node = NULL;
 
 	if (info->history)
 		node = info->history;
-	add_node_end(&node, buf, linecount);
+	add_node_end(&node, buf, countline);
 
 	if (!info->history)
 		info->history = node;
@@ -124,20 +120,19 @@ int build_history_list(info_t *info, char *buf, int linecount)
 }
 
 /**
- * renumber_history - renumbers the history linked list after changes
- * @info: Structure containing potential arguments. Used to maintain
- *
- * Return: the new histcount
+ * renumber_history - renumber history after changes.
+ * @info: Structure containing potential arguments.
+ * Return: returns value
  */
 int renumber_history(info_t *info)
 {
 	list_t *node = info->history;
-	int i = 0;
+	int p = 0;
 
 	while (node)
 	{
-		node->num = i++;
+		node->num = p++;
 		node = node->next;
 	}
-	return (info->histcount = i);
+	return (info->histcount = p);
 }

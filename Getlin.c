@@ -2,17 +2,17 @@
 
 /**
  * input_buf - buffers
- * @info: representation of parameter of struct
+ * @info: parameter for struct
  * @buf: buffer address
- * @len: len address
- * Return: bytes
+ * @length1: length address
+ * Return: returns bytes
  */
-ssize_t input_buf(info_t *info, char **buf, size_t *len)
+ssize_t input_buf(info_t *info, char **buf, size_t *length1)
 {
 	ssize_t r = 0;
 	size_t len_p = 0;
 
-	if (!*len)
+	if (!*length1)
 	{
 		free(*buf);
 		*buf = NULL;
@@ -32,9 +32,9 @@ ssize_t input_buf(info_t *info, char **buf, size_t *len)
 			info->linecount_flag = 1;
 			remove_comments(*buf);
 			build_history_list(info, *buf, info->histcount++);
-			/* if (_strchr(*buf, ';')) is this a command chain? */
+
 			{
-				*len = r;
+				*length1 = r;
 				info->cmd_buf = buf;
 			}
 		}
@@ -43,78 +43,76 @@ ssize_t input_buf(info_t *info, char **buf, size_t *len)
 }
 
 /**
- * get_input - gets a line
+ * get_input - obtains a line
  * @info: struct parameter
- * Return: bytes
+ * Return: returns bytes
  */
 ssize_t get_input(info_t *info)
 {
-	static char *buf; /* the ';' command chain buffer */
-	static size_t i, j, len;
-	ssize_t r = 0;
+	static char *buf;
+	static size_t i, j, length1;
+	ssize_t t = 0;
 	char **buf_p = &(info->arg), *p;
 
 	_putchar(BUF_FLUSH);
-	r = input_buf(info, &buf, &len);
-	if (r == -1) /* EOF */
+	t = input_buf(info, &buf, &length1);
+	if (t == -1)
 		return (-1);
-	if (len)	/* we have commands left in the chain buffer */
+	if (length1)
 	{
-		j = i; /* init new iterator to current buf position */
-		p = buf + i; /* get pointer for return */
+		j = i;
+		p = buf + i;
 
-		check_chain(info, buf, &j, i, len);
-		while (j < len) /* iterate to semicolon or end */
+		check_chain(info, buf, &j, i, length1);
+		while (j < length1)
 		{
 			if (is_chain(info, buf, &j))
 				break;
 			j++;
 		}
 
-		i = j + 1; /* increment past nulled ';'' */
-		if (i >= len) /* reached end of buffer? */
+		i = j + 1;
+		if (i >= length1)
 		{
-			i = len = 0; /* reset position and length */
+			i = length1 = 0;
 			info->cmd_buf_type = CMD_NORM;
 		}
 
-		*buf_p = p; /* pass back pointer to current command position */
-		return (_strlen(p)); /* return length of current command */
+		*buf_p = p;
+		return (_strlen(p));
 	}
 
 	*buf_p = buf;
-	return (r);
+	return (t);
 }
 
 /**
  * read_buf - reads a buffer
  * @info: struct parameter
  * @buf: buffer
- * @u: size
- *
- * Return: r
+ * @t: size
+ * Return: returns r
  */
-ssize_t read_buf(info_t *info, char *buf, size_t *u)
+ssize_t read_buf(info_t *info, char *buf, size_t *t)
 {
 	ssize_t r = 0;
 
-	if (*u)
+	if (*t)
 		return (0);
 	r = read(info->readfd, buf, READ_BUF_SIZE);
 	if (r >= 0)
-		*u = r;
+		*t = r;
 	return (r);
 }
 
 /**
- * _getline - gets the line
+ * _getline - obtains the line
  * @info: struct parameter
- * @ptr: address of pointer to buffer
- * @length: If not NULL returns the size
- *
+ * @ptr: pointer to buffer
+ * @sizel: returns the size if not NULL
  * Return: s
  */
-int _getline(info_t *info, char **ptr, size_t *length)
+int _getline(info_t *info, char **ptr, size_t *sizel)
 {
 	static char buf[READ_BUF_SIZE];
 	static size_t u, len;
@@ -123,8 +121,8 @@ int _getline(info_t *info, char **ptr, size_t *length)
 	char *p = NULL, *new_p = NULL, *c;
 
 	p = *ptr;
-	if (p && length)
-		s = *length;
+	if (p && sizel)
+		s = *sizel;
 	if (u == len)
 		u = len = 0;
 
@@ -147,16 +145,16 @@ int _getline(info_t *info, char **ptr, size_t *length)
 	u = k;
 	p = new_p;
 
-	if (length)
-		*length = s;
+	if (sizel)
+		*sizel = s;
 	*ptr = p;
 	return (s);
 }
 
 /**
- * sigintHandler - invalidates Ctrl C
- * @sig_num: representation of the signal number
- * Return: void
+ * sigintHandler - cancels out Ctrl C.
+ * @sig_num: represents the signal number.
+ * Return: returns void.
  */
 void sigintHandler(__attribute__((unused))int sig_num)
 {
